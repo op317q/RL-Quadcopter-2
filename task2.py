@@ -30,8 +30,8 @@ class Task():
     def get_reward(self):
         """Uses current pose of sim to return reward."""
         """Takeoff"""
-        punish_x = np.tanh(abs(self.sim.pose[0] - self.target_pose[0]))
-        punish_y = np.tanh(abs(self.sim.pose[1] - self.target_pose[1]))
+       # punish_x = np.tanh(abs(self.sim.pose[0] - self.target_pose[0]))
+        #punish_y = np.tanh(abs(self.sim.pose[1] - self.target_pose[1]))
         
     
         reward_z = 3*np.tanh(self.sim.pose[2] - self.init_z)
@@ -40,17 +40,20 @@ class Task():
         punish_rot2 = np.tanh(abs(self.sim.pose[4]))
         punish_rot3 = np.tanh(abs(self.sim.pose[5]))
         
-        reward = reward_z - punish_x - punish_y - punish_rot1 - punish_rot2 - punish_rot3
+        reward = reward_z  - punish_rot1 - punish_rot2 - punish_rot3
         
         dist = abs(np.linalg.norm(self.target_pose[:3] - self.sim.pose[:3]))
         
         if dist < 3:
-            reward += 8*np.tanh(dist)
+            reward += 10*np.tanh(dist)
         else:
             reward -= np.tanh(dist)
         
         reward-=np.tanh(np.linalg.norm(self.sim.v))
         reward-=np.tanh(np.linalg.norm(self.sim.angular_v))
+        
+        if self.sim.v[2] > 0:
+            reward+=np.tanh(self.sim.v[2])
         
         return reward
             
